@@ -1,0 +1,39 @@
+/**
+ * AlwaysShowActiveNow - lowers the breakpoint at which Discord hides
+ * the Active Now column, so it stays visible on much narrower windows.
+ *
+ * Discord hides the column with `display: none` (media / container query)
+ * once the window gets too narrow. The rule below overrides that, and
+ * the `asa-hide-now` rule hides it again only below the configured width.
+ * Class hashes change with every Discord update (e.g. nowPlayingColumn__133bf),
+ * so only the stable prefix is matched: [class*="nowPlayingColumn"]
+ */
+
+:root {
+    --asa-width: 360px;
+}
+
+/* Force the column to be visible, overriding Discord's hide rule */
+[class*="tabBody_"] > [class*="nowPlayingColumn_"] {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    width: var(--asa-width) !important;
+    min-width: var(--asa-width) !important;
+    max-width: var(--asa-width) !important;
+}
+
+/* Hide it again only on very narrow windows (class toggled from index.ts) */
+body.asa-hide-now [class*="tabBody_"] > [class*="nowPlayingColumn_"] {
+    display: none !important;
+    visibility: hidden !important;
+}
+
+/* Compact mode: smaller cards for narrow windows */
+body.asa-compact [class*="nowPlayingColumn_"] [class*="itemCard_"] {
+    padding: 8px !important;
+}
+
+body.asa-compact [class*="nowPlayingColumn_"] [class*="section_"] {
+    margin-bottom: 8px !important;
+}
