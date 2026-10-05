@@ -37,3 +37,51 @@ body.asa-compact [class*="nowPlayingColumn_"] [class*="itemCard_"] {
 body.asa-compact [class*="nowPlayingColumn_"] [class*="section_"] {
     margin-bottom: 8px !important;
 }
+
+/* ------------------------------------------------------------------ */
+/* Optional filters: Voice Channel activity on/off +                  */
+/* "hide everything except Voice Channel activity"                    */
+/* Toggled via body.asa-hide-voice / body.asa-hide-non-voice          */
+/* (index.ts) or by copy-pasting the blocks into QuickCSS.            */
+/*                                                                    */
+/* Discord renames class hashes on every update (__abc12),            */
+/* so only the stable prefix is matched. If a type stops being       */
+/* filtered after a Discord update: inspect the Active Now card via   */
+/* DevTools (Ctrl+Shift+I) and extend the :has() list below with the  */
+/* new class. The plugin additionally filters by card text            */
+/* ("In a Voice Channel"), so Spotify / games / launcher cards are   */
+/* reliably hidden even when their classes change.                    */
+/* ------------------------------------------------------------------ */
+
+/* Hide Voice Channel activity.
+   NOTE: party / memberList are intentionally NOT listed here - game cards
+   with a party ("Team", "+2", LoL lobby, etc.) share those classes and
+   would otherwise be hidden as well. */
+body.asa-hide-voice [class*="nowPlayingColumn"] :is(
+    [class*="itemCard"][aria-label*="voice" i],
+    [class*="itemCard"]:has(
+        [class*="voice" i],
+        [class*="speaker" i],
+        [class*="callTile"],
+        [class*="voiceUser"],
+        [aria-label*="voice" i]
+    ),
+    [class*="voiceCard"],
+    [class*="voiceSection"]
+) {
+    display: none !important;
+}
+
+/* Hide everything except Voice Channel activity (games, Spotify, */
+/* launcher, "In Lobby", streams, etc.). Hides every card WITHOUT */
+/* voice-only indicators; the plugin additionally hides leftovers */
+/* via text matching ("In a Voice Channel"). */
+body.asa-hide-non-voice [class*="nowPlayingColumn"] [class*="itemCard"]:not([aria-label*="voice" i]):not(:has(
+    [class*="voice" i],
+    [class*="speaker" i],
+    [class*="callTile"],
+    [class*="voiceUser"],
+    [aria-label*="voice" i]
+)) {
+    display: none !important;
+}

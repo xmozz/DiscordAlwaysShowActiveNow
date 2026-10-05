@@ -28,9 +28,65 @@ No build needed. Works with any regular Vencord install.
     visibility: hidden !important;
   }
 }
+
+/* --- Optional: hide Voice Channel activity (uncomment to hide, comment out again to show) --- */
+/* NOTE: party / memberList are intentionally NOT listed - game cards */
+/* with a party ("Team", "+2", lobby, etc.) share those classes. */
+/*
+[class*="nowPlayingColumn"] :is(
+  [class*="itemCard"][aria-label*="voice" i],
+  [class*="itemCard"]:has(
+    [class*="voice" i],
+    [class*="speaker" i],
+    [class*="callTile"],
+    [class*="voiceUser"],
+    [aria-label*="voice" i]
+  ),
+  [class*="voiceCard"],
+  [class*="voiceSection"]
+) {
+  display: none !important;
+}
+*/
+
+/* --- Optional: hide everything except Voice Channel activity (games, Spotify, launcher, "In Lobby", etc.) --- */
+/* Note: CSS-only is heuristic. The plugin additionally filters by card */
+/* text ("In a Voice Channel") and is more reliable. */
+/*
+[class*="nowPlayingColumn"] [class*="itemCard"]:not([aria-label*="voice" i]):not(:has(
+  [class*="voice" i],
+  [class*="speaker" i],
+  [class*="callTile"],
+  [class*="voiceUser"],
+  [aria-label*="voice" i]
+)) {
+  display: none !important;
+}
+*/
+
+/* --- Optional: show "In VoiceChat now" instead of "Active Now" (use together with the block above) --- */
+/* Uncomment together with the voice-only block. Best effort, CSS-only: */
+/* the plugin does this automatically while "Hide everything except */
+/* voice activity" is on. If the header does not change, inspect it via */
+/* DevTools (Ctrl+Shift+I), copy the header element's class and replace */
+/* the selector below with e.g. [class*="thatClassName"]. */
+/*
+[class*="nowPlayingColumn"] :is(h1, h2, h3, [class*="header"], [class*="title"], [class*="heading"], [class*="label"]):not([class*="itemCard"] *):not(:has([class*="itemCard"])) {
+  font-size: 0 !important;
+}
+[class*="nowPlayingColumn"] :is(h1, h2, h3, [class*="header"], [class*="title"], [class*="heading"], [class*="label"]):not([class*="itemCard"] *):not(:has([class*="itemCard"]))::after {
+  content: "In VoiceChat now";
+  font-size: 16px;
+  font-weight: 600;
+}
+*/
 ```
 
 That is all. Restart Discord if it does not apply immediately.
+
+That is all. Restart Discord if it does not apply immediately.
+
+> Note: Discord renames class hashes on every update (e.g. `nowPlayingColumn__133bf`). Only the stable prefix is matched. If a type stops being filtered after a Discord update: inspect the Active Now card via DevTools (`Ctrl+Shift+I`) and extend the `:has(...)` list above with the new class.
 
 ## Method 2 (alternative): full plugin with settings UI
 
@@ -54,6 +110,8 @@ Settings provided by the plugin:
 | Hide below width (px) | Active Now is hidden only when the window is narrower than this. Default 650 |
 | Width (px) | Width of the Active Now column |
 | Compact mode | Smaller cards, less padding |
+| Show Voice Channel activity | On = voice cards visible, off = voice cards hidden |
+| Hide everything except voice activity | On = only "In a Voice Channel" cards stay, games / Spotify / launcher etc. are hidden. Header then shows "In VoiceChat now" |
 
 Installation:
 
@@ -111,4 +169,5 @@ Installation:
 ## Notes for developers
 
 - `style.css` is loaded as a `?managed` style via `enableStyle` / `disableStyle` from `@api/Styles`.
-- The column width is applied through the `--asa-width` CSS variable, compact mode through the `asa-compact` body class, and the threshold through the `asa-hide-now` body class, all managed in `applySettings()` / `updateVisibility()`.
+- The column width is applied through the `--asa-width` CSS variable, compact mode through the `asa-compact` body class, voice filters through the `asa-hide-voice` / `asa-hide-non-voice` body classes, and the threshold through the `asa-hide-now` body class, all managed in `applySettings()` / `updateVisibility()`.
+- `hideEverythingExceptVoice` additionally runs a text-based `MutationObserver` filter (`isVoiceCard()` matches "In a Voice Channel" / "Voice Channel" / "In Voice"), so game / Spotify / launcher / lobby cards are hidden even when Discord renames their classes.
